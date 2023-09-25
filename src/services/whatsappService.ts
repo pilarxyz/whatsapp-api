@@ -13,6 +13,7 @@ import {
   delay,
   ChatUpdate,
   AuthenticationCreds,
+  UserFacingSocketConfig,
 } from '@whiskeysockets/baileys';
 import { Response } from 'express';
 
@@ -87,14 +88,14 @@ const createSession = async (
     ));
   }
 
-  const clientOptions = {
+  const clientOptions: UserFacingSocketConfig = {
     auth,
     printQRInTerminal: true,
     logger,
     browser: [
       process.env.APP_NAME || 'Whatsapp Api',
       'Chrome',
-      '103.0.5060.114',
+      '103.0.560.1124',
     ] as [string, string, string],
     patchMessageBeforeSending: (message: any) => {
       const isButtonsMessage = !!(
@@ -124,6 +125,12 @@ const createSession = async (
   if (!isLegacy) {
     inMemoryStore.readFromFile(sessionsDir(sessionId + '_store.json'));
     inMemoryStore.bind(client.ev);
+  }
+
+  if (process.env.USE_PAIRING_CODE && !client.authState.creds.registered) {
+    console.log('Requesting pairing code...');
+    // const code = await client.requestPairingCode(sessionId);
+    // console.log(`Pairing code: ${code}`);
   }
 
   sessions[sessionId] = { ...client, store: inMemoryStore, isLegacy };

@@ -6,7 +6,7 @@ export function handleSchemaValidation<T>(
   schema: z.ZodType<T>,
   data: any,
   res: Response
-): T {
+): T | void {
   try {
     const result = schema.safeParse(data);
 
@@ -17,7 +17,7 @@ export function handleSchemaValidation<T>(
     return result.data;
   } catch (error) {
     if (error instanceof ZodError) {
-      throw ResponseUtil.badRequest({
+      return ResponseUtil.badRequest({
         res,
         message: 'Invalid request body',
         err: error,
@@ -25,7 +25,7 @@ export function handleSchemaValidation<T>(
     } else {
       // Handle other types of errors as needed
       // For example, you can log them or send a different response
-      throw ResponseUtil.internalError({
+      return ResponseUtil.internalError({
         res,
         message: 'Internal server error',
         err: error,

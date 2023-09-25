@@ -33,21 +33,23 @@ export const generate = async (req: Request, res: Response) => {
     message: z.string(),
   });
 
-  const { sender, receiver, message } = handleSchemaValidation(
-    messageSchema,
-    req.body,
+  const data = handleSchemaValidation(messageSchema, req.body, res);
+  if (!data) {
+    return;
+  }
+
+  const session = await whatsappService.getSessionAndCheckStatus(
+    data.sender,
     res
   );
-
-  const session = await whatsappService.getSessionAndCheckStatus(sender, res);
   if (!session) {
     return;
   }
-  const otp = generateNumericOTP(6, receiver);
+  const otp = generateNumericOTP(6, data.receiver);
 
   let customText;
-  if (message.includes('{otp}')) {
-    customText = message.replace('{otp}', otp.toString());
+  if (data.message.includes('{otp}')) {
+    customText = data.message.replace('{otp}', otp.toString());
   } else {
     return ResponseUtil.badRequest({
       res,
@@ -58,11 +60,11 @@ export const generate = async (req: Request, res: Response) => {
   // insert otp and receiver to db
   try {
     // check if user exists
-    const user = await db.getUser(receiver);
+    const user = await db.getUser(data.receiver);
     if (user.length === 0) {
-      await db.insertUser(receiver, otp);
+      await db.insertUser(data.receiver, otp);
     } else {
-      await db.updateUser(receiver, otp);
+      await db.updateUser(data.receiver, otp);
     }
   } catch (error) {
     console.log(error);
@@ -74,7 +76,7 @@ export const generate = async (req: Request, res: Response) => {
       text: customText,
     } as any;
 
-    const formattedPhoneNumber = whatsappService.formatPhone(receiver);
+    const formattedPhoneNumber = whatsappService.formatPhone(data.receiver);
     try {
       const result = await whatsappService.sendMessage(
         session,
@@ -86,7 +88,7 @@ export const generate = async (req: Request, res: Response) => {
     } catch (error) {
       // Handle the error if needed
       console.error(
-        `Failed to send message to recipient ${receiver}: ${error}`
+        `Failed to send message to recipient ${data.receiver}: ${error}`
       );
     }
   } catch (error) {
@@ -102,14 +104,17 @@ export const verify = async (req: Request, res: Response) => {
     otp: z.string(),
   });
 
-  const { sender, receiver, otp } = handleSchemaValidation(
-    messageSchema,
-    req.body,
-    res
-  );
+  const data = handleSchemaValidation(messageSchema, req.body, res);
+
+  if (!data) {
+    return;
+  }
 
   // insert otp and receiver to db
-  const session = await whatsappService.getSessionAndCheckStatus(sender, res);
+  const session = await whatsappService.getSessionAndCheckStatus(
+    data.sender,
+    res
+  );
 
   if (!session) {
     return;
@@ -118,7 +123,7 @@ export const verify = async (req: Request, res: Response) => {
   try {
     console.log('session', session);
     // check if user exists
-    const users = await db.getUser(receiver);
+    const users = await db.getUser(data.receiver);
     if (users.length === 0) {
       return ResponseUtil.badRequest({
         res,
@@ -129,7 +134,7 @@ export const verify = async (req: Request, res: Response) => {
     const user = users[0];
 
     // check if otp is valid
-    const isValid = otp === user.otp;
+    const isValid = data.otp === user.otp;
 
     if (!isValid) {
       return ResponseUtil.badRequest({
@@ -153,7 +158,7 @@ export const verify = async (req: Request, res: Response) => {
     }
 
     // delete user from db
-    await db.deleteUser(receiver);
+    await db.deleteUser(data.receiver);
 
     const text = `Login berhasil pada ${now.toISOString()}`;
 
@@ -163,7 +168,7 @@ export const verify = async (req: Request, res: Response) => {
       } as any;
 
       console.log(formattedMessage);
-      const formattedPhoneNumber = whatsappService.formatPhone(receiver);
+      const formattedPhoneNumber = whatsappService.formatPhone(data.receiver);
       try {
         const result = await whatsappService.sendMessage(
           session,
@@ -179,7 +184,7 @@ export const verify = async (req: Request, res: Response) => {
       } catch (error) {
         // Handle the error if needed
         console.error(
-          `Failed to send message to recipient ${receiver}: ${error}`
+          `Failed to send message to recipient ${data.receiver}: ${error}`
         );
       }
     } catch (error) {

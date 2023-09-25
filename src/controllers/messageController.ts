@@ -13,28 +13,31 @@ export const sendMessage = async (req: Request, res: Response) => {
     file: z.string().optional(),
   });
 
-  const { receiver, message, file, sender } = handleSchemaValidation(
-    messageSchema,
-    req.body,
+  const data = handleSchemaValidation(messageSchema, req.body, res);
+
+  if (!data) {
+    return;
+  }
+
+  const session = await whatsappService.getSessionAndCheckStatus(
+    data.sender,
     res
   );
-
-  const session = await whatsappService.getSessionAndCheckStatus(sender, res);
   if (!session) {
     return;
   }
   try {
-    const receivers = receiver.split('|');
+    const receivers = data.receiver.split('|');
 
     let formattedMessage = {
-      text: message,
+      text: data.message,
     } as any;
 
-    if (file) {
-      const categoryFile = categorizeFile(file);
+    if (data.file) {
+      const categoryFile = categorizeFile(data.file);
 
       formattedMessage = {
-        caption: message,
+        caption: data.message,
         ...categoryFile,
       };
     }

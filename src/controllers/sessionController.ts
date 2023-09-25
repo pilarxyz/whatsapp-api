@@ -14,10 +14,13 @@ export const status = async (req: Request, res: Response) => {
     sessionId: z.string(),
   });
 
-  const { sessionId } = handleSchemaValidation(statusSchema, req.body, res);
+  const data = handleSchemaValidation(statusSchema, req.body, res);
+  if (!data) {
+    return;
+  }
 
   try {
-    const session = await getSessionStatus(sessionId);
+    const session = await getSessionStatus(data.sessionId);
     return ResponseUtil.ok({
       res,
       message: 'Session status retrieved',
@@ -34,10 +37,13 @@ export const create = async (req: Request, res: Response) => {
     sessionId: z.string(),
   });
 
-  const { sessionId } = handleSchemaValidation(createSchema, req.body, res);
+  const data = handleSchemaValidation(createSchema, req.body, res);
+  if (!data) {
+    return;
+  }
 
   try {
-    await createSession(sessionId, false, res);
+    await createSession(data.sessionId, false, res);
   } catch (error) {
     console.error(error);
     return ResponseUtil.internalError({
@@ -53,10 +59,13 @@ export const logout = async (req: Request, res: Response) => {
     sessionId: z.string(),
   });
 
-  const { sessionId } = handleSchemaValidation(logoutSchema, req.body, res);
+  const data = handleSchemaValidation(logoutSchema, req.body, res);
+  if (!data) {
+    return;
+  }
 
   try {
-    deleteSession(sessionId, false);
+    deleteSession(data.sessionId, false);
     return ResponseUtil.ok({ res, data: null, message: 'Session deleted' });
   } catch (error) {
     console.error(error);
