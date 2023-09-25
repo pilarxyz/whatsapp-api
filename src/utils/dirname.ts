@@ -1,11 +1,11 @@
-const fs = require('fs');
-const path = require('path');
+import fs from 'fs';
+import path from 'path';
 
 // Get the directory of the current module (assuming it's in the project root).
 const currentModuleDir = __dirname;
 
 // Define a function to find the project's root directory.
-function findProjectRoot(dir) {
+function findProjectRoot(dir: string) {
   const rootMarkerFiles = ['package.json', '.git']; // Add other markers as needed
   for (const marker of rootMarkerFiles) {
     const rootPath = path.join(dir, marker);
@@ -27,4 +27,4 @@ function findProjectRoot(dir) {
 // Find the project's root directory.
 const projectRoot = findProjectRoot(currentModuleDir);
 
-module.exports = projectRoot;
+export default projectRoot;
