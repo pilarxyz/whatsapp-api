@@ -6,30 +6,16 @@ import {
 } from '../services/whatsappService';
 import * as ResponseUtil from '../utils/response';
 import { z } from 'zod';
+import { handleSchemaValidation } from '../utils/schema-validation';
 
 export const status = async (req: Request, res: Response) => {
   const statusSchema = z.object({
     sessionId: z.string(),
   });
 
-  const result = statusSchema.safeParse(req.params);
+  const { sessionId } = handleSchemaValidation(statusSchema, req.body, res);
 
-  if (!result.success) {
-    return ResponseUtil.badRequest({
-      res,
-      message: 'Invalid request body',
-      err: result.error,
-    });
-  }
-
-  const { sessionId } = result.data;
   try {
-    if (!sessionId) {
-      return ResponseUtil.badRequest({
-        res,
-        message: 'Session ID is required',
-      });
-    }
     const session = await getSessionStatus(sessionId);
     return ResponseUtil.ok({
       res,
@@ -47,24 +33,9 @@ export const create = async (req: Request, res: Response) => {
     sessionId: z.string(),
   });
 
-  const result = createSchema.safeParse(req.params);
-
-  if (!result.success) {
-    return ResponseUtil.badRequest({
-      res,
-      message: 'Invalid request body',
-      err: result.error,
-    });
-  }
-  const { sessionId } = result.data;
+  const { sessionId } = handleSchemaValidation(createSchema, req.body, res);
 
   try {
-    if (!sessionId) {
-      return ResponseUtil.badRequest({
-        res,
-        message: 'Session ID is required',
-      });
-    }
     await createSession(sessionId, false, res);
   } catch (error) {
     console.error(error);
@@ -81,24 +52,10 @@ export const logout = async (req: Request, res: Response) => {
     sessionId: z.string(),
   });
 
-  const result = logoutSchema.safeParse(req.params);
+  const { sessionId } = handleSchemaValidation(logoutSchema, req.body, res);
 
-  if (!result.success) {
-    return ResponseUtil.badRequest({
-      res,
-      message: 'Invalid request body',
-      err: result.error,
-    });
-  }
-  const { sessionId } = result.data;
   try {
-    if (!sessionId) {
-      return ResponseUtil.badRequest({
-        res,
-        message: 'Session ID is required',
-      });
-    }
-    await deleteSession(sessionId, false);
+    deleteSession(sessionId, false);
     return ResponseUtil.ok({ res, data: null, message: 'Session deleted' });
   } catch (error) {
     console.error(error);

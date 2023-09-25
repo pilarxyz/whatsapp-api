@@ -355,6 +355,21 @@ const init = () => {
   });
 };
 
+const getSessionAndCheckStatus = async (sender: string, res: Response) => {
+  const sessionStatus = await getSessionStatus(sender);
+
+  if (sessionStatus.status === 'disconnected') {
+    throw ResponseUtil.badRequest({
+      res,
+      message: 'Session not connected',
+    });
+  }
+
+  const session = await getSession(sender);
+
+  return session;
+};
+
 export {
   isSessionExists,
   createSession,
@@ -368,4 +383,5 @@ export {
   cleanup,
   init,
   getSessionStatus,
+  getSessionAndCheckStatus,
 };

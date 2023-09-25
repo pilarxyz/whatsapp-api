@@ -3,6 +3,7 @@ import { z } from 'zod';
 import * as whatsappService from '../services/whatsappService';
 import { categorizeFile } from '../utils/general';
 import * as ResponseUtil from '../utils/response';
+import { handleSchemaValidation } from '../utils/schema-validation';
 
 export const sendMessage = async (req: Request, res: Response) => {
   const messageSchema = z.object({
@@ -12,28 +13,15 @@ export const sendMessage = async (req: Request, res: Response) => {
     file: z.string().optional(),
   });
 
-  const result = messageSchema.safeParse(req.body);
+  const { receiver, message, file, sender } = handleSchemaValidation(
+    messageSchema,
+    req.body,
+    res
+  );
 
-  if (!result.success) {
-    return ResponseUtil.badRequest({
-      res,
-      message: 'Invalid request body',
-      err: result.error,
-    });
-  }
-  const { receiver, message, file, sender } = result.data;
+  const session = await whatsappService.getSessionAndCheckStatus(sender, res);
+
   try {
-    const sessionStatus = await whatsappService.getSessionStatus(sender);
-
-    if (sessionStatus.status == 'disconnected') {
-      return ResponseUtil.badRequest({
-        res,
-        message: 'Session not connected',
-      });
-    }
-
-    const session = await whatsappService.getSession(sender);
-
     const receivers = receiver.split('|');
 
     let formattedMessage = {
