@@ -30,11 +30,14 @@ the receiver phone number only support with full country code eg: 6285123123123
 To use the WhatsApp API, you'll need to create a session. Use the following `curl` command to create a session:
 
 ```bash
-curl --location --request POST 'localhost:3000/sessions/:sessionId' \
---header 'x-api-key: YOUR_API_KEY'
+curl --location --request POST 'localhost:3000/sessions/' \
+--header 'x-api-key: YOUR_API_KEY' \
+--header 'Content-Type: application/json' \
+--data '{
+    "sessionId": "YOUR_SESSION_ID"
+}'
 ```
-
-Replace `:sessionId` with a unique session identifier and `YOUR_API_KEY` with your actual API key.
+Replace `YOUR_SESSION_ID` with the session you want to log out of and `YOUR_API_KEY` with your actual API key.
 
 ## How to Check Session Status
 
@@ -42,21 +45,28 @@ You can check the status of a session using the following `curl` command:
 
 ```bash
 curl --location 'localhost:3000/sessions/:sessionId' \
---header 'x-api-key: YOUR_API_KEY'
+--header 'x-api-key: YOUR_API_KEY' \
+--header 'Content-Type: application/json' \
+--data '{
+    "sessionId": "YOUR_SESSION_ID"
+}'
 ```
-
-Replace `:sessionId` with the session you want to check and `YOUR_API_KEY` with your actual API key.
+Replace `YOUR_SESSION_ID` with the session you want to log out of and `YOUR_API_KEY` with your actual API key.
 
 ## How to Logout a Session
 
 To log out of a session, use the following `curl` command:
 
 ```bash
-curl --location --request POST 'localhost:3000/sessions/:sessionId/logout' \
---header 'x-api-key: YOUR_API_KEY'
+curl --location --request POST 'localhost:3000/sessions/logout' \
+--header 'x-api-key: YOUR_API_KEY' \
+--header 'Content-Type: application/json' \
+--data '{
+    "sessionId": "YOUR_SESSION_ID"
+}'
 ```
 
-Replace `:sessionId` with the session you want to log out of and `YOUR_API_KEY` with your actual API key.
+Replace `YOUR_SESSION_ID` with the session you want to log out of and `YOUR_API_KEY` with your actual API key.
 
 ## How to Send a Text Message
 
@@ -108,7 +118,42 @@ curl --location 'localhost:3000/send' \
 }'
 ```
 
-Replace `YOUR_SESSION_ID` with the session you want to send the media from, `YOUR_TARGET_RECEIVER_1` with the recipient's identifier, `YOUR_MESSAGE` with the actual message content, and `YOUR_MEDIA_PUBLIC_URL` with the public URL of the media file you want to send.
+## How to Send Generate OTP
+
+To send otp, use the following `curl` command:
+
+```bash
+curl --location 'localhost:3000/otp/generate' \
+--header 'Content-Type: application/json' \
+--header 'x-api-key: YOUR_API_KEY' \
+--data '{
+    "sender": "YOUR_SESSION_ID",
+    "receiver": "YOUR_TARGET_RECEIVER",
+    "message": "YOUR_MESSAGE", 
+}'
+```
+
+`YOUR_MESSAGE` should contain {otp} placeholder.
+
+Replace `YOUR_SESSION_ID` with the session you want to send the media from, `YOUR_TARGET_RECEIVER` with the recipient's identifier, `YOUR_MESSAGE` with the actual message content.
+
+## How to Send Verify OTP
+
+To send otp, use the following `curl` command:
+
+```bash
+curl --location 'localhost:3000/otp/verify' \
+--header 'Content-Type: application/json' \
+--header 'x-api-key: YOUR_API_KEY' \
+--data '{
+    "sender": "YOUR_SESSION_ID",
+    "receiver": "YOUR_TARGET_RECEIVER",
+    "message": "YOUR_MESSAGE", 
+}'
+```
+
+`YOUR_MESSAGE` is optional.
+
+Replace `YOUR_SESSION_ID` with the session you want to send the media from, `YOUR_TARGET_RECEIVER` with the recipient's identifier, `YOUR_MESSAGE` with the actual message content.
 
 Feel free to explore and integrate this WhatsApp API into your applications for automated messaging and interaction with WhatsApp. Make sure to keep your API key secure and follow WhatsApp's terms of service and guidelines when using this API.
-
