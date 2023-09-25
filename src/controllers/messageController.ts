@@ -1,28 +1,27 @@
 import { Request, Response } from 'express';
-import * as Joi from 'joi';
+import { z } from 'zod';
 import * as whatsappService from '../services/whatsappService';
 import { categorizeFile } from '../utils/general';
 import * as ResponseUtil from '../utils/response';
 
 export const sendMessage = async (req: Request, res: Response) => {
-  const schema = Joi.object({
-    sender: Joi.string().required(),
-    receiver: Joi.string().required(),
-    message: Joi.string().required(),
-    file: Joi.string(),
+  const messageSchema = z.object({
+    sender: z.string(),
+    receiver: z.string(),
+    message: z.string(),
+    file: z.string().optional(),
   });
 
-  const { error } = schema.validate(req.body);
+  const result = messageSchema.safeParse(req.body);
 
-  if (error) {
+  if (!result.success) {
     return ResponseUtil.badRequest({
       res,
-      message: error.details[0]?.message || 'Invalid request body',
+      message: 'Invalid request body',
+      err: result.error,
     });
   }
-  // Extract request headers and body
-  const { body } = req;
-  const { receiver, message, file, sender } = body;
+  const { receiver, message, file, sender } = result.data;
   try {
     const sessionStatus = await whatsappService.getSessionStatus(sender);
 
@@ -51,7 +50,7 @@ export const sendMessage = async (req: Request, res: Response) => {
     }
 
     const results = [];
-    console.log(receivers);
+    console.log(formattedMessage);
     for (const recipient of receivers) {
       const formattedPhoneNumber = whatsappService.formatPhone(recipient);
       try {

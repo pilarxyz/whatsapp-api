@@ -1,4 +1,3 @@
-import * as Joi from 'joi';
 import { Request, Response } from 'express';
 import {
   createSession,
@@ -6,22 +5,24 @@ import {
   deleteSession,
 } from '../services/whatsappService';
 import * as ResponseUtil from '../utils/response';
+import { z } from 'zod';
 
 export const status = async (req: Request, res: Response) => {
-  const schema = Joi.object({
-    sessionId: Joi.string().required(),
+  const statusSchema = z.object({
+    sessionId: z.string(),
   });
 
-  const { error } = schema.validate(req.params);
+  const result = statusSchema.safeParse(req.params);
 
-  if (error) {
+  if (!result.success) {
     return ResponseUtil.badRequest({
       res,
-      message: error.details[0]?.message ?? 'Invalid request body',
+      message: 'Invalid request body',
+      err: result.error,
     });
   }
 
-  const { sessionId } = req.params;
+  const { sessionId } = result.data;
   try {
     if (!sessionId) {
       return ResponseUtil.badRequest({
@@ -42,18 +43,20 @@ export const status = async (req: Request, res: Response) => {
 };
 
 export const create = async (req: Request, res: Response) => {
-  const schema = Joi.object({
-    sessionId: Joi.string().required(),
+  const createSchema = z.object({
+    sessionId: z.string(),
   });
-  const { error } = schema.validate(req.params);
 
-  if (error) {
+  const result = createSchema.safeParse(req.params);
+
+  if (!result.success) {
     return ResponseUtil.badRequest({
       res,
-      message: error.details[0]?.message ?? 'Invalid request body',
+      message: 'Invalid request body',
+      err: result.error,
     });
   }
-  const { sessionId } = req.params;
+  const { sessionId } = result.data;
 
   try {
     if (!sessionId) {
@@ -74,18 +77,20 @@ export const create = async (req: Request, res: Response) => {
 };
 
 export const logout = async (req: Request, res: Response) => {
-  const schema = Joi.object({
-    sessionId: Joi.string().required(),
+  const logoutSchema = z.object({
+    sessionId: z.string(),
   });
-  const { error } = schema.validate(req.params);
 
-  if (error) {
+  const result = logoutSchema.safeParse(req.params);
+
+  if (!result.success) {
     return ResponseUtil.badRequest({
       res,
-      message: error.details[0]?.message ?? 'Invalid request body',
+      message: 'Invalid request body',
+      err: result.error,
     });
   }
-  const { sessionId } = req.params;
+  const { sessionId } = result.data;
   try {
     if (!sessionId) {
       return ResponseUtil.badRequest({

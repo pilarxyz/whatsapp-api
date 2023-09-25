@@ -1,3 +1,4 @@
+import { z } from 'zod';
 import { httpStatusCode } from '../constants/httpStatusCode';
 
 function formatServiceReturn(
@@ -183,14 +184,14 @@ function badRequest({
 }: {
   res: Response;
   message: string;
-  err?: any;
+  err?: z.ZodError<any>;
 }) {
   let code = httpStatusCode.BAD_REQUEST;
   let msg = message;
 
-  if (err && err?.message) {
-    msg = err.message;
-  }
+  // if (err && err?.message) {
+  //   msg = err.message;
+  // }
 
   //   if (message?.code) {
   //     code = message.code;
