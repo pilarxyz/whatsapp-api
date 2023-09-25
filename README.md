@@ -148,12 +148,13 @@ curl --location 'localhost:3000/otp/verify' \
 --data '{
     "sender": "YOUR_SESSION_ID",
     "receiver": "YOUR_TARGET_RECEIVER",
+    "otp": "YOUR_OTP", 
     "message": "YOUR_MESSAGE", 
 }'
 ```
 
 `YOUR_MESSAGE` is optional.
 
-Replace `YOUR_SESSION_ID` with the session you want to send the media from, `YOUR_TARGET_RECEIVER` with the recipient's identifier, `YOUR_MESSAGE` with the actual message content.
+Replace `YOUR_SESSION_ID` with the session you want to send the media from, `YOUR_TARGET_RECEIVER` with the recipient's identifier, `YOUR_OTP` with the actual OTP value, `YOUR_MESSAGE` with the actual message content.
 
 Feel free to explore and integrate this WhatsApp API into your applications for automated messaging and interaction with WhatsApp. Make sure to keep your API key secure and follow WhatsApp's terms of service and guidelines when using this API.
