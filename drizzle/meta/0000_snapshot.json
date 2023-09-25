@@ -1,7 +1,7 @@
 {
   "version": "5",
   "dialect": "sqlite",
-  "id": "646b5d8b-e7cc-4a52-95e2-c17347c31a88",
+  "id": "f53eef6f-da63-48bc-a38a-c7097c0e0cee",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "users": {
@@ -16,23 +16,23 @@
         },
         "phone": {
           "name": "phone",
-          "type": "integer",
+          "type": "text",
           "primaryKey": false,
-          "notNull": false,
+          "notNull": true,
           "autoincrement": false
         },
         "otp": {
           "name": "otp",
           "type": "text",
           "primaryKey": false,
-          "notNull": false,
+          "notNull": true,
           "autoincrement": false
         },
         "timestamp": {
           "name": "timestamp",
           "type": "text",
           "primaryKey": false,
-          "notNull": false,
+          "notNull": true,
           "autoincrement": false,
           "default": "CURRENT_TIMESTAMP"
         }

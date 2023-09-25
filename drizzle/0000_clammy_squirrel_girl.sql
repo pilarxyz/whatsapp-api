@@ -1,8 +1,8 @@
 CREATE TABLE `users` (
 	`id` integer PRIMARY KEY AUTOINCREMENT NOT NULL,
-	`phone` integer,
-	`otp` text,
-	`timestamp` text DEFAULT CURRENT_TIMESTAMP
+	`phone` text NOT NULL,
+	`otp` text NOT NULL,
+	`timestamp` text DEFAULT CURRENT_TIMESTAMP NOT NULL
 );
 --> statement-breakpoint
 CREATE UNIQUE INDEX `users_phone_unique` ON `users` (`phone`);
