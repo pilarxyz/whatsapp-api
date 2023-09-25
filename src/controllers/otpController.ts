@@ -40,13 +40,19 @@ export const generate = async (req: Request, res: Response) => {
   );
 
   const session = await whatsappService.getSessionAndCheckStatus(sender, res);
+  if (!session) {
+    return;
+  }
   const otp = generateNumericOTP(6, receiver);
 
   let customText;
   if (message.includes('{otp}')) {
     customText = message.replace('{otp}', otp.toString());
   } else {
-    return ResponseUtil.badRequest({ res, message: "Message should contain {otp} placeholder." });
+    return ResponseUtil.badRequest({
+      res,
+      message: 'Message should contain {otp} placeholder.',
+    });
   }
 
   // insert otp and receiver to db
@@ -102,10 +108,15 @@ export const verify = async (req: Request, res: Response) => {
     res
   );
 
+  // insert otp and receiver to db
   const session = await whatsappService.getSessionAndCheckStatus(sender, res);
 
-  // insert otp and receiver to db
+  if (!session) {
+    return;
+  }
+
   try {
+    console.log('session', session);
     // check if user exists
     const users = await db.getUser(receiver);
     if (users.length === 0) {

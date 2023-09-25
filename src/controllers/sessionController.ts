@@ -9,6 +9,7 @@ import { z } from 'zod';
 import { handleSchemaValidation } from '../utils/schema-validation';
 
 export const status = async (req: Request, res: Response) => {
+  console.log(req.params);
   const statusSchema = z.object({
     sessionId: z.string(),
   });

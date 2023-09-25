@@ -20,7 +20,9 @@ export const sendMessage = async (req: Request, res: Response) => {
   );
 
   const session = await whatsappService.getSessionAndCheckStatus(sender, res);
-
+  if (!session) {
+    return;
+  }
   try {
     const receivers = receiver.split('|');
 
