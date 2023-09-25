@@ -30,9 +30,10 @@ export const generate = async (req: Request, res: Response) => {
   const messageSchema = z.object({
     sender: z.string(),
     receiver: z.string(),
+    message: z.string(),
   });
 
-  const { sender, receiver } = handleSchemaValidation(
+  const { sender, receiver, message } = handleSchemaValidation(
     messageSchema,
     req.body,
     res
@@ -41,7 +42,12 @@ export const generate = async (req: Request, res: Response) => {
   const session = await whatsappService.getSessionAndCheckStatus(sender, res);
   const otp = generateNumericOTP(6, receiver);
 
-  const text = `Your OTP is\n ${otp}`;
+  let customText;
+  if (message.includes('{otp}')) {
+    customText = message.replace('{otp}', otp.toString());
+  } else {
+    return ResponseUtil.badRequest({ res, message: "Message should contain {otp} placeholder." });
+  }
 
   // insert otp and receiver to db
   try {
@@ -59,7 +65,7 @@ export const generate = async (req: Request, res: Response) => {
 
   try {
     let formattedMessage = {
-      text: text,
+      text: customText,
     } as any;
 
     const formattedPhoneNumber = whatsappService.formatPhone(receiver);
