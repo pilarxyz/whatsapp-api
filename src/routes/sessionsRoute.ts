@@ -4,8 +4,8 @@ import * as sessionController from '../controllers/sessionController';
 
 const router = Router();
 
-router.get('/:sessionId', apikeyValidator, sessionController.status);
-router.post('/:sessionId', apikeyValidator, sessionController.create);
-router.post('/:sessionId/logout', apikeyValidator, sessionController.logout);
+router.get('/', apikeyValidator, sessionController.status);
+router.post('/', apikeyValidator, sessionController.create);
+router.post('/logout', apikeyValidator, sessionController.logout);
 
 export default router;
